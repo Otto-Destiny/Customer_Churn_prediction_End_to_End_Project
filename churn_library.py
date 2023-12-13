@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns; sns.set()
+import pytest
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -21,6 +22,7 @@ from sklearn.metrics import RocCurveDisplay, classification_report
 
 os.environ['QT_QPA_PLATFORM']='offscreen'
 
+# @pytest.fixture(scope="module")
 def import_data(pth):
     '''
     returns dataframe for the csv found at pth
@@ -51,9 +53,6 @@ def perform_eda(df):
     'Card_Category',
     'Attrition_Flag'
     ]
-    # Create a Churn Column from Attrition_Flag
-    df['Churn'] = df['Attrition_Flag'].apply(
-        lambda val: 0 if val == "Existing Customer" else 1)
     
     # Visualize  distribution of the Churn Column
     plt.figure(figsize=(20,10))
@@ -97,7 +96,7 @@ def encoder_helper(df, category_lst, response='Churn'):
     '''
     for i in category_lst:
         df[i + '_' + response] = df.groupby(i)['Churn'].transform('mean')
-    df.drop(columns=category_lst, inplace=True)
+    df = df.drop(columns=category_lst, axis=1)
     return df
 
 
@@ -290,3 +289,21 @@ def generate_predictions(X_train, X_test, model_name):
 
     return y_train_preds, y_test_preds
 
+# @pytest.fixture(scope="module")
+def Churn_Column(df):
+    """
+    Create a Churn column in the DataFrame based on the 'Attrition_Flag' column.
+
+    Parameters:
+    - df (pandas.DataFrame): The input DataFrame.
+
+    Returns:
+    pandas.DataFrame: The DataFrame with the newly created 'Churn' column.
+    """
+    # Create a Churn Column from Attrition_Flag
+    df['Churn'] = df['Attrition_Flag'].apply(
+        lambda val: 0 if val == "Existing Customer" else 1)
+    return df
+
+if __name__ == "__main__":
+    import_data(r"datasets/bank_data.csv")
