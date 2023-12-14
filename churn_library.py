@@ -45,14 +45,7 @@ def perform_eda(df):
             None
     '''
     # Identify categorical columns
-    cat_columns = [
-    'Gender',
-    'Education_Level',
-    'Marital_Status',
-    'Income_Category',
-    'Card_Category',
-    'Attrition_Flag'
-    ]
+    cat_columns = df.select_dtypes(exclude='number').columns
     
     # Visualize  distribution of the Churn Column
     plt.figure(figsize=(20,10))
@@ -83,20 +76,25 @@ def perform_eda(df):
 
 def encoder_helper(df, category_lst, response='Churn'):
     '''
-    helper function to turn each categorical column into a new column with
-    propotion of churn for each category - associated with cell 15 from the notebook
+    Helper function to turn each categorical column into a new column with
+    proportion of churn for each category.
 
-    input:
-            df: pandas dataframe
-            category_lst: list of columns that contain categorical features
-            response: string of response name [optional argument that could be used for naming variables or index y column]
+    Parameters:
+        df: pandas DataFrame
+        category_lst: list of columns that contain categorical features
+        response: string of response name [optional argument that could be used for naming variables or index y column]
 
-    output:
-            df: pandas dataframe with new columns for
+    Returns:
+        df: pandas DataFrame with new columns
     '''
+    # print("Columns before encoding:", df.columns, len(df.columns))  # Add this line for debugging
     for i in category_lst:
-        df[i + '_' + response] = df.groupby(i)['Churn'].transform('mean')
-    df = df.drop(columns=category_lst, axis=1)
+        df[i + '_' + response] = df.groupby(i)[response].transform('mean')
+
+    # print("Columns before drop:", df.columns, len(df.columns))  # Add this line for debugging
+    df.drop(columns=category_lst, inplace=True)
+    # print("Columns after drop:", df.columns, len(df.columns))  # Add this line for debugging
+
     return df
 
 
@@ -195,7 +193,8 @@ def train_models(X_train, X_test, y_train, y_test):
               y_train: y training data
               y_test: y testing data
     output:
-              None
+              rfc: Fitted Randome Forest Model
+              lrc: Fitted Logistic Regression Model
     '''
     # Initialize models
     rfc = RandomForestClassifier(random_state=42)
@@ -216,7 +215,7 @@ def train_models(X_train, X_test, y_train, y_test):
 
     # Plot ROC curve for Logistic Regression model
     lrc_plot = RocCurveDisplay.from_estimator(lrc, X_test, y_test)
-    plt.savefig(r'images\results\lr_model_ROC.png')
+    plt.savefig(os.path.join('images', 'results', 'lr_model_ROC.png'))
     plt.close()
 
     # Plot ROC curve for both Logistic Regression and Random Forest
@@ -224,12 +223,15 @@ def train_models(X_train, X_test, y_train, y_test):
     ax = plt.gca()
     rfc_disp = RocCurveDisplay.from_estimator(rfc, X_test, y_test, ax=ax, alpha=0.8)
     lrc_plot.plot(ax=ax, alpha=0.8)
-    plt.savefig(r'images\results\rf_model_ROC.png')
+    rfc_disp.plot(ax=ax, alpha=0.8)
+    plt.savefig(os.path.join('images', 'results', 'rf_model_ROC.png'))
     plt.close()
 
     # save best models
-    joblib.dump(cv_rfc.best_estimator_, './models/rfc_model.pkl')
-    joblib.dump(lrc, './models/logistic_model.pkl')
+    joblib.dump(cv_rfc.best_estimator_, os.path.join('models', 'rfc_model.pkl'))
+    joblib.dump(lrc, os.path.join('models','logistic_model.pkl'))
+
+    return rfc, lrc
 
 
 def plot_classification_results(model_name, train_preds, test_preds, y_train, y_test, output_path):
@@ -281,7 +283,7 @@ def generate_predictions(X_train, X_test, model_name):
     """
     
     # Load the trained model from the specified file
-    model = joblib.load(f'./models/{model_name}.pkl')
+    model = joblib.load(f'models/{model_name}.pkl')
 
     # Predict with the loaded model
     y_train_preds = model.predict(X_train)
