@@ -5,7 +5,7 @@ import pytest
 from churn_library import *
 
 logging.basicConfig(
-    filename='logs/churn_library.log',
+    filename= os.path.join('logs', 'churn_library.log'),
     level = logging.INFO,
     filemode='w',
     format='%(name)s - %(levelname)s - %(message)s')
@@ -84,13 +84,6 @@ def test_eda(churn_column_fixture):
     except AssertionError as err:
         logging.error(f"FAILED: {str(err)}")
         raise err
-    # finally:
-    #     # Clean up: Remove the created image files after testing
-    #     os.remove('images/eda/churn_histogram.png')
-    #     os.remove('images/eda/customer_age.png')
-    #     os.remove('images/eda/marital_status.png')
-    #     os.remove('images/eda/Total_Trans_Ct.png')
-    #     os.remove('images/eda/corr_heatmap.png')
 
 
 def test_encoder_helper(churn_column_fixture):
