@@ -37,6 +37,21 @@ def import_data(pth):
     df = pd.read_csv(pth)
     return df
 
+def churn_column(df):
+    """
+    Create a Churn column in the DataFrame based on the 'Attrition_Flag' column.
+
+    Parameters:
+    - df (pandas.DataFrame): The input DataFrame.
+
+    Returns:
+    pandas.DataFrame: The DataFrame with the newly created 'Churn' column.
+    """
+    # Create a Churn Column from Attrition_Flag
+    df['Churn'] = df['Attrition_Flag'].apply(
+        lambda val: 0 if val == "Existing Customer" else 1)
+    return df
+
 
 def perform_eda(df):
     '''
@@ -343,22 +358,6 @@ def generate_predictions(x_train, x_test, model_name):
     return y_train_preds, y_test_preds
 
 # @pytest.fixture(scope="module")
-
-
-def churn_column(df):
-    """
-    Create a Churn column in the DataFrame based on the 'Attrition_Flag' column.
-
-    Parameters:
-    - df (pandas.DataFrame): The input DataFrame.
-
-    Returns:
-    pandas.DataFrame: The DataFrame with the newly created 'Churn' column.
-    """
-    # Create a Churn Column from Attrition_Flag
-    df['Churn'] = df['Attrition_Flag'].apply(
-        lambda val: 0 if val == "Existing Customer" else 1)
-    return df
 
 
 if __name__ == "__main__":
