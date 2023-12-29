@@ -173,7 +173,7 @@ def classification_report_image(y_train,
 
     # plot random forest model results and save
     plot_classification_results(
-        'rfc_model',
+        'Random Forest',
         y_train_preds_rf,
         y_test_preds_rf,
         y_train,
@@ -182,7 +182,7 @@ def classification_report_image(y_train,
 
     # plot logistic regression model results and save
     plot_classification_results(
-        'logistic_model',
+        'Logistic Regression',
         y_train_preds_lr,
         y_test_preds_lr,
         y_train,
@@ -329,7 +329,7 @@ def plot_classification_results(
     plt.axis('off')
 
     # # Save the plot
-    plt.savefig(os.path.join('images', 'results', f'{model_name}_result.png'))
+    plt.savefig(os.path.join('images', 'results', f'{model_name}.pkl'))
 
     # Close the plot to free up resources
     plt.close()
